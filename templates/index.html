@@ -421,7 +421,7 @@
           Example: <code>{index} - {emp_name} - NDA</code>
         </p>
         <div class="form-group">
-          <input type="text" name="filename_template" placeholder="{emp_name} LCF NDA Form"
+          <input type="text" name="filename_template" placeholder="Non-Disclosure Agreement (NDA)_{emp_name}"
                  value="{{ result.filename_template if result and result.filename_template else (preview.filename_template if preview and preview.filename_template else '{emp_name} LCF NDA Form') }}">
         </div>
 
@@ -531,3 +531,4 @@
 
 </body>
 </html>
+
