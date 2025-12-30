@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Lighthouse NDA Generator</title>
+  <style>
+    /* base styles */
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: #f3f4f6;
+      color: #111827;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 28px 32px;
+      max-width: 920px;
+      width: 100%;
+      box-shadow: 0 20px 35px rgba(15, 23, 42, 0.15);
+      transition: background-color 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 10px;
+    }
+
+    .logo {
+      width: 110px;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .header-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.25;
+      color: #111827;
+      transition: color 0.25s ease;
+    }
+
+    .tagline {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #374151;
+      font-weight: 500;
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #6b7280;
+      transition: color 0.25s ease;
+    }
+
+    p { font-size: 14px; margin: 5px 0; }
+
+    h3 {
+      margin-top: 18px;
+      margin-bottom: 6px;
+      font-size: 18px;
+    }
+
+    .pill-list { margin: 4px 0 12px 0; }
+
+    .pill {
+      display: inline-block;
+      font-family: monospace;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 12px;
+      margin: 3px 5px 0 0;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .form-group { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    input[type="file"], input[type="text"], input[type="number"] {
+      width: 100%;
+      font-size: 13px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      background: white;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: none;
+      background: #2563eb;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .messages {
+      margin-bottom: 10px;
+      color: #b91c1c;
+      font-size: 13px;
+    }
+
+    .result-card {
+      margin-top: 18px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #ecfdf5;
+      border: 1px solid #6ee7b7;
+      font-size: 13px;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .result-label { font-weight: 500; }
+
+    .preview-list { margin-top: 12px; border-top: 1px dashed #e5e7eb; padding-top: 12px; }
+
+    .preview-item { padding: 6px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
+
+    /* Processing Overlay */
+    .processing-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .processing-box {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 20px 24px;
+      max-width: 380px;
+      width: 90%;
+      box-shadow: 0 20px 35px rgba(15, 23, 42, 0.25);
+      font-size: 14px;
+    }
+
+    .processing-title {
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 8px;
+      color: #111827;
+    }
+
+    .processing-steps {
+      margin: 8px 0 8px 18px;
+      padding: 0;
+      list-style: disc;
+    }
+
+    .processing-steps li {
+      margin-bottom: 4px;
+      color: #374151;
+    }
+
+    .processing-note {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 3px solid #e5e7eb;
+      border-top-color: #2563eb;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* iOS-style switch */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+      background-color: #d1d5db;
+      border-radius: 30px;
+      transition: background-color 0.25s ease;
+    }
+
+    .slider:before {
+      content: "";
+      position: absolute;
+      height: 22px;
+      width: 22px;
+      left: 2px;
+      top: 2px;
+      background-color: white;
+      border-radius: 50%;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      transition: transform 0.25s ease;
+    }
+
+    .switch input:checked + .slider {
+      background-color: #2563eb;
+    }
+
+    .switch input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    /* DARK MODE */
+    body.dark {
+      background-color: #0f172a;
+      color: #e5e7eb;
+    }
+
+    body.dark .card {
+      background-color: #0b1220;
+      border: 1px solid #1e293b;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+
+    body.dark h1 {
+      color: #f1f5f9;
+    }
+
+    body.dark .tagline {
+      color: #c7d2fe;
+    }
+
+    body.dark .pill {
+      background: #1e293b;
+      color: #93c5fd;
+    }
+
+    body.dark .subtitle {
+      color: #94a3b8;
+    }
+
+    body.dark .result-card {
+      background: #0f3d2e;
+      border-color: #34d399;
+      color: #d1fae5;
+    }
+
+    body.dark .logo {
+      border-color: #1e293b;
+    }
+
+    /* DARK MODE OVERRIDES FOR OVERLAY */
+    body.dark .processing-overlay {
+      background: rgba(2, 6, 23, 0.7);
+    }
+
+    body.dark .processing-box {
+      background: #020617;
+      color: #e5e7eb;
+      border: 1px solid #1f2937;
+    }
+
+    body.dark .processing-title {
+      color: #e5e7eb;
+    }
+
+    body.dark .processing-steps li {
+      color: #e5e7eb;
+    }
+
+    body.dark .processing-note {
+      color: #9ca3af;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Processing Overlay -->
+  <div id="processing-overlay" class="processing-overlay">
+    <div class="processing-box">
+      <div class="spinner"></div>
+      <div class="processing-title">Generating NDA DOCX + PDF...</div>
+      <ul class="processing-steps">
+        <li>Reading employee list from Excel</li>
+        <li>Creating NDA DOCX files</li>
+        <li>Converting DOCX files to PDF</li>
+        <li>Creating reports</li>
+        <li>Creating ZIP file</li>
+      </ul>
+      <p class="processing-note">Please wait while we generate all documents. Do not close this tab.</p>
+    </div>
+  </div>
+
+  <div class="page-wrapper">
+    <div class="card">
+
+      <div class="header">
+        <img src="{{ url_for('static', filename='lcf_logo.jpg') }}" class="logo">
+
+        <div class="header-main">
+          <div>
+            <h1>Lighthouse Communities Foundation - Auto NDA Generator App</h1>
+            <div class="tagline">Non-Disclosure Agreement (NDA) – A legal contract that protects company data, employee confidentiality, and sensitive business information.</div>
+            <div class="subtitle"><em>Designed By: Sampada Swami – HR Analytics Associate</em></div>
+          </div>
+
+          <div class="theme-toggle" title="Toggle dark mode">
+            <label class="switch">
+              <input type="checkbox" id="darkToggle">
+              <span class="slider"></span>
+            </label>
+            <div id="themeLabel">Dark</div>
+          </div>
+        </div>
+      </div>
+
+      <p>
+        Upload your employees Excel file and NDA template (.docx).<br>
+        The app will generate NDA <strong>DOCX + PDF + Report</strong> for each employee.
+      </p>
+
+      <h3>Excel File Requirement</h3>
+      <p>It must contain these column names:</p>
+
+      <div class="pill-list">
+        <span class="pill">emp_name</span>
+        <span class="pill">city</span>
+        <span class="pill">state</span>
+        <span class="pill">joining_date</span>
+        <span class="pill">address</span>
+        <span class="pill">gender</span>
+      </div>
+
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div>{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endwith %}
+
+      <form method="post" enctype="multipart/form-data">
+        <div class="form-group">
+          <label>Upload Employees Excel File (.xlsx):</label>
+          <input type="file" name="employees_file" accept=".xlsx" required>
+        </div>
+
+        <div class="form-group">
+          <label>Upload NDA Template (.docx):</label>
+          <input type="file" name="template_file" accept=".docx" required>
+        </div>
+
+        <h3>Filename template (for DOCX & PDF)</h3>
+        <p style="margin:4px 0 8px 0;font-size:13px;color:#6b7280;">
+          Use placeholders: <code>{emp_name}</code>, <code>{city}</code>, <code>{state}</code>, <code>{joining_date}</code>, <code>{index}</code>.<br>
+          Example: <code>{index} - {emp_name} - NDA</code>
+        </p>
+        <div class="form-group">
+          <input type="text" name="filename_template" placeholder="{emp_name} LCF NDA Form"
+                 value="{{ result.filename_template if result and result.filename_template else (preview.filename_template if preview and preview.filename_template else '{emp_name} LCF NDA Form') }}">
+        </div>
+
+        <h3>Preview count (N)</h3>
+        <p style="margin:4px 0 8px 0;font-size:13px;color:#6b7280;">
+          Number of rows to show when previewing filenames.
+        </p>
+        <div class="form-group" style="max-width:140px;">
+          <input type="number" name="preview_count" min="1" value="5">
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:8px;">
+          <button type="submit" name="action" value="preview" class="btn-primary">
+            🔍 Preview Filenames
+          </button>
+
+          <button type="submit" name="action" value="generate" id="submit-btn" class="btn-primary">
+            ⬇ Generate NDA
+          </button>
+        </div>
+      </form>
+
+      {% if preview %}
+      <div class="result-card">
+        <div class="result-row"><div class="result-label">Total employees:</div><div>{{ preview.total }}</div></div>
+        <div style="margin-top:8px;">
+          <strong>Previewing first {{ preview.preview_count }} filenames</strong>
+          <div class="preview-list">
+            {% for row in preview.preview_rows %}
+            <div class="preview-item">
+              <strong>{{ row.index }}.</strong> {{ row.emp_name }} → <code>{{ row.filename }}</code>
+            </div>
+            {% endfor %}
+          </div>
+          <p style="margin-top:8px;font-size:13px;color:#6b7280;">
+            If the preview looks good, re-upload files (or use same files) and click <strong>Generate NDA</strong>.
+          </p>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if result %}
+      <div class="result-card">
+        <div class="result-row"><div class="result-label">Total employees:</div><div>{{ result.total }}</div></div>
+        <div class="result-row"><div class="result-label">Successful:</div><div>{{ result.success }}</div></div>
+        <div class="result-row"><div class="result-label">Errors:</div><div>{{ result.error }}</div></div>
+        <div class="result-row"><div class="result-label">Time:</div><div>{{ result.time }}</div></div>
+
+        <div style="margin-top:10px;">
+          <a href="{{ url_for('download_zip', zip_id=result.zip_id) }}" class="btn-primary">
+            ⬇ Download ZIP (DOCX + PDF + Report)
+          </a>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const overlay = document.getElementById("processing-overlay");
+      const form = document.querySelector("form");
+      const submitBtn = document.getElementById("submit-btn");
+      const darkToggle = document.getElementById("darkToggle");
+      const themeLabel = document.getElementById("themeLabel");
+      const DARK_KEY = "ndaDarkMode";
+
+      // Restore dark mode from localStorage
+      const saved = localStorage.getItem(DARK_KEY);
+      if (saved === "on") {
+        document.body.classList.add("dark");
+        if (darkToggle) darkToggle.checked = true;
+        if (themeLabel) themeLabel.textContent = "Dark";
+      } else {
+        if (themeLabel) themeLabel.textContent = "Light";
+      }
+
+      if (darkToggle) {
+        darkToggle.addEventListener("change", () => {
+          if (darkToggle.checked) {
+            document.body.classList.add("dark");
+            localStorage.setItem(DARK_KEY, "on");
+            if (themeLabel) themeLabel.textContent = "Dark";
+          } else {
+            document.body.classList.remove("dark");
+            localStorage.setItem(DARK_KEY, "off");
+            if (themeLabel) themeLabel.textContent = "Light";
+          }
+        });
+      }
+
+      if (form) {
+        form.addEventListener("submit", (e) => {
+          // only show overlay for real generation (action=generate)
+          const active = document.activeElement;
+          const actionVal = active ? active.value : '';
+          if (actionVal === 'generate') {
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Processing...";
+            overlay.style.display = "flex";
+          }
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>

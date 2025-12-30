@@ -1,0 +1,6 @@
+Flask
+pandas
+docxtpl
+docx2pdf
+openpyxl
+gunicorn
